@@ -1,0 +1,32 @@
+{
+  "name": "release-1.8.0",
+  "version": "1.8.0",
+  "platform": "Android",
+  "assets": [
+    {"path":"Assets/Core/boot.bin","size":12582912,"hash":"boot-a1","bundle":"core","type":"Binary"},
+    {"path":"Assets/Characters/Hero/hero.fbx","size":10485760,"hash":"model-a1","bundle":"characters","type":"Model"},
+    {"path":"Assets/Characters/Hero/hero_albedo.png","size":4194304,"hash":"albedo-a1","bundle":"characters","type":"Texture"},
+    {"path":"Assets/Characters/Hero/hero_normal.png","size":4194304,"hash":"normal-a1","bundle":"characters","type":"Texture"},
+    {"path":"Assets/Characters/Hero/hero.mat","size":65536,"hash":"material-a1","bundle":"characters","dependencies":["Assets/Characters/Hero/hero_albedo.png"],"type":"Material"},
+    {"path":"Assets/Characters/Hero/hero.prefab","size":262144,"hash":"prefab-a1","bundle":"characters","dependencies":["Assets/Characters/Hero/hero.fbx","Assets/Characters/Hero/hero.mat"],"type":"Prefab"},
+    {"path":"Assets/Environment/terrain.asset","size":20971520,"hash":"terrain-a1","bundle":"environment","type":"Terrain"},
+    {"path":"Assets/Scenes/forest.scene","size":15728640,"hash":"forest-a1","bundle":"environment","dependencies":["Assets/Environment/terrain.asset","Assets/Environment/grass.mat"],"type":"Scene"},
+    {"path":"Assets/Environment/props_atlas.png","size":6291456,"hash":"props-a1","bundle":"environment","type":"Texture"},
+    {"path":"Assets/Environment/grass.mat","size":32768,"hash":"grass-a1","bundle":"environment","dependencies":["Assets/Environment/terrain.asset"],"type":"Material"},
+    {"path":"Assets/Scenes/town.scene","size":7340032,"hash":"town-a1","bundle":"environment","dependencies":["Assets/Environment/props_atlas.png"],"type":"Scene"},
+    {"path":"Assets/Audio/theme.ogg","size":10485760,"hash":"theme-a1","bundle":"audio","type":"Audio"},
+    {"path":"Assets/Audio/sfx.bank","size":8388608,"hash":"sfx-a1","bundle":"audio","type":"Audio"},
+    {"path":"Assets/UI/icons.png","size":2097152,"hash":"icons-a1","bundles":["shared","ui"],"type":"Texture"},
+    {"path":"Assets/Shaders/common.shadervariants","size":6291456,"hash":"shaders-a1","bundle":"shared","type":"Shader"},
+    {"path":"Assets/Legacy/old_map.scene","size":5242880,"hash":"oldmap-a1","bundle":"environment","type":"Scene"},
+    {"path":"Assets/Legacy/old_splash.png","size":1048576,"hash":"splash-a1","bundle":"ui","type":"Texture"}
+  ],
+  "bundles": [
+    {"name":"core","size":12582912,"hash":"core-b1"},
+    {"name":"characters","size":33554432,"hash":"characters-b1"},
+    {"name":"environment","size":50331648,"hash":"environment-b1"},
+    {"name":"audio","size":18874368,"hash":"audio-b1"},
+    {"name":"shared","size":8388608,"hash":"shared-b1"},
+    {"name":"ui","size":4194304,"hash":"ui-b1"}
+  ]
+}

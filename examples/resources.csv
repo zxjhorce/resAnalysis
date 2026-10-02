@@ -1,0 +1,4 @@
+path,size,hash,bundle,dependencies,type
+Assets/Characters/hero.png,1048576,hero-v1,characters,,Texture
+Assets/Characters/hero.mat,4096,mat-v1,characters,Assets/Characters/hero.png,Material
+"Assets/UI/icon,large.png",131072,icon-v1,ui;shared,,Texture

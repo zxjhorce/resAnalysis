@@ -1,0 +1,13 @@
+{
+  "name": "resource-build-explainer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "资源构建变化解释器：离线对比资源清单并给出有证据的变化说明",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "compare": "node cli.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

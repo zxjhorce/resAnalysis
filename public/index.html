@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="对比两次资源构建，追踪体积、内容、分包与依赖变化，并导出解释报告。">
+  <title>资源构建变化解释器 · Build Delta</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23172238'/%3E%3Cpath d='M7 23V15h4v8zm7 0V10h4v13zm7 0V6h4v17z' fill='%237eaeff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="brand" aria-label="Build Delta 首页"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span><strong>BUILD <span>DELTA</span></strong></a>
+    <span class="topbar-label">RESOURCE BUILD INTELLIGENCE</span>
+    <div class="topbar-right"><span class="local-label"><span aria-hidden="true">◉</span> 本地分析</span><button id="format-help" class="text-button">输入格式</button></div>
+  </header>
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="sidebar-heading"><span>构建对比</span><span class="mono">01 / 02</span></div>
+      <button id="before-card" class="build-card"><span class="build-marker">A</span><span><span class="eyebrow">基线构建</span><strong id="before-name">等待导入</strong><small id="before-meta">JSON / CSV</small></span><span class="card-edit" aria-hidden="true">＋</span></button>
+      <div class="build-connector"><span></span><span>比较变化</span></div>
+      <button id="after-card" class="build-card current"><span class="build-marker">B</span><span><span class="eyebrow">当前构建</span><strong id="after-name">等待导入</strong><small id="after-meta">JSON / CSV</small></span><span class="card-edit" aria-hidden="true">＋</span></button>
+      <button id="swap-builds" class="secondary-button swap-button" disabled><span aria-hidden="true">⇅</span> 对调版本</button>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-heading">比较口径</div>
+      <dl class="scope-list"><div><dt>体积来源</dt><dd id="scope-source">—</dd></div><div><dt>资源匹配</dt><dd>ID / 路径</dd></div><div><dt>当前资源数</dt><dd id="scope-count">—</dd></div><div><dt>体积字段覆盖</dt><dd id="scope-coverage">—</dd></div></dl>
+      <div id="demo-label" class="sample-note"><span class="sample-badge">示例</span><p>当前展示演示构建。导入你的两份清单，查看真实变化。</p></div>
+      <button id="load-demo" class="text-button demo-button">载入演示数据</button>
+      <div class="privacy-note"><span aria-hidden="true">◇</span><p>文件在浏览器内解析，<br>资源清单无需上传。</p></div>
+    </aside>
+    <main>
+      <div class="page-heading"><div><div class="eyebrow section-eyebrow">BUILD COMPARISON</div><h1>资源构建变化解释器</h1><p id="comparison-caption">从资源增量，找到构建变化的证据。</p></div><div class="heading-actions"><button id="export-report" class="secondary-button" disabled><span aria-hidden="true">↓</span> 导出报告</button><button id="import-builds" class="primary-button"><span aria-hidden="true">＋</span> 导入构建</button></div></div>
+      <div id="global-error" class="notice error" hidden role="alert"></div>
+      <div id="warnings" class="notice warning" hidden></div>
+      <section class="metrics" aria-label="构建变化概览"><article class="metric primary-metric"><div class="metric-label">构建体积变化 <span id="delta-percent" class="percentage">—</span></div><strong id="metric-delta">—</strong><div id="metric-total" class="metric-foot">等待比较</div></article><article class="metric"><div class="metric-label"><span class="status-indicator added"></span> 新增资源</div><strong id="metric-added">—</strong><div id="added-size" class="metric-foot">—</div></article><article class="metric"><div class="metric-label"><span class="status-indicator modified"></span> 修改资源</div><strong id="metric-modified">—</strong><div id="modified-size" class="metric-foot">内容、体积或关系变化</div></article><article class="metric"><div class="metric-label"><span class="status-indicator removed"></span> 移除资源</div><strong id="metric-removed">—</strong><div id="removed-size" class="metric-foot">—</div></article></section>
+      <div class="analysis-layout">
+        <div class="results-column">
+          <section class="panel contribution-panel"><div class="panel-heading"><h2>资源体积增量构成</h2><span class="small-meta">按资源清单统计</span></div><div id="contribution-chart" class="contribution-chart"></div><div id="contribution-legend" class="contribution-legend"></div><p id="contribution-note" class="chart-note"></p></section>
+          <section class="panel changes-panel"><div class="view-tabs" role="tablist" aria-label="比较视图"><button id="assets-tab" role="tab" aria-selected="true" class="view-tab active" aria-controls="results-panel">资源变化 <span id="changed-count">0</span></button><button id="bundles-tab" role="tab" aria-selected="false" class="view-tab" aria-controls="results-panel">Bundle 变化 <span id="bundle-count">0</span></button></div><div class="table-controls"><div id="status-filters" class="status-filters" aria-label="变化筛选"><button data-filter="changed" class="filter active" aria-pressed="true">有变化</button><button data-filter="all" class="filter" aria-pressed="false">全部</button><button data-filter="added" class="filter" aria-pressed="false">新增</button><button data-filter="modified" class="filter" aria-pressed="false">修改</button><button data-filter="removed" class="filter" aria-pressed="false">移除</button></div><div class="search-sort"><label class="search-box"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索资源路径" aria-label="搜索资源或 Bundle"></label><select id="sort" aria-label="排序方式"><option value="impact">变化量排序</option><option value="delta">增量排序</option><option value="path">名称排序</option></select></div></div><div id="results-panel" role="tabpanel" aria-labelledby="assets-tab"><div class="table-scroll"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div><div id="empty-results" class="empty-state" hidden>没有符合条件的变化</div></div><div class="table-footer"><span id="result-count">0 项</span><div><button id="prev-page" class="pagination-button" aria-label="上一页" disabled>‹</button><span id="page-label" class="mono">1 / 1</span><button id="next-page" class="pagination-button" aria-label="下一页" disabled>›</button></div></div></section>
+        </div>
+        <aside class="explanation-column"><section id="explanation-panel" class="panel explanation-panel" aria-label="变化解释"><div class="panel-heading"><h2><span class="explain-symbol" aria-hidden="true">✦</span> 变化解释</h2><span class="small-meta">基于清单证据</span></div><div id="explanation-content"><p class="muted">导入两个构建，开始分析。</p></div></section><div class="evidence-note"><span aria-hidden="true">ⓘ</span><p>确定项来自清单字段对比；可能原因需要结合构建日志确认。</p></div></aside>
+      </div>
+      <footer class="main-footer"><span>BUILD DELTA <span class="mono">/ v1.0</span></span><span>让每一次构建变化都有据可查</span></footer>
+    </main>
+  </div>
+  <dialog id="import-dialog" class="import-dialog"><form method="dialog" class="dialog-top"><div><span class="eyebrow">NEW COMPARISON</span><h2>导入两次构建</h2></div><button class="close-button" aria-label="关闭导入窗口">×</button></form><p class="dialog-description">选择基线与当前构建清单。支持 JSON、CSV，每份不超过 20 MB。</p><div class="import-grid"><section class="import-slot" data-slot="before"><div class="slot-heading"><span class="build-marker">A</span><h3>基线构建</h3></div><div class="dropzone" data-slot="before"><span class="upload-symbol" aria-hidden="true">⇧</span><strong>拖入构建清单</strong><span>或<button type="button" data-choose="before" class="text-button">选择文件</button></span><input type="file" id="before-file" accept=".json,.csv,application/json,text/csv" hidden></div><div id="before-import-status" class="import-status" role="status"></div><details><summary>粘贴清单文本</summary><textarea id="before-paste" aria-label="基线构建清单文本" placeholder='{"name":"baseline","assets":[...]}'></textarea><button type="button" data-parse="before" class="secondary-button">解析文本</button></details></section><section class="import-slot" data-slot="after"><div class="slot-heading"><span class="build-marker">B</span><h3>当前构建</h3></div><div class="dropzone" data-slot="after"><span class="upload-symbol" aria-hidden="true">⇧</span><strong>拖入构建清单</strong><span>或<button type="button" data-choose="after" class="text-button">选择文件</button></span><input type="file" id="after-file" accept=".json,.csv,application/json,text/csv" hidden></div><div id="after-import-status" class="import-status" role="status"></div><details><summary>粘贴清单文本</summary><textarea id="after-paste" aria-label="当前构建清单文本" placeholder='{"name":"current","assets":[...]}'></textarea><button type="button" data-parse="after" class="secondary-button">解析文本</button></details></section></div><div class="dialog-bottom"><button id="import-format-help" class="text-button">查看格式与示例</button><button id="apply-import" class="primary-button" disabled>开始对比</button></div></dialog>
+  <dialog id="format-dialog" class="format-dialog"><form method="dialog" class="dialog-top"><h2>构建清单格式</h2><button class="close-button" aria-label="关闭格式说明">×</button></form><p>使用构建脚本输出的通用清单。资源通过 <code>id</code>（优先）或路径匹配，所有体积单位为字节。</p><pre>{
+  "name": "release-1.2",
+  "platform": "Android",
+  "assets": [
+    {
+      "path": "Assets/Textures/hero.png",
+      "size": 1048576,
+      "hash": "sha256-content-hash",
+      "bundle": "characters",
+      "dependencies": ["Assets/Materials/hero.mat"]
+    }
+  ],
+  "bundles": [{ "name": "characters", "size": 800000 }]
+}</pre><p>CSV 表头：<code>path,size,hash,bundle,dependencies,type</code>。多个 Bundle 或依赖用分号分隔，含逗号的字段使用双引号。</p><pre>path,size,hash,bundle,dependencies,type
+Assets/hero.png,1048576,abc,characters,,Texture</pre><div class="format-rules"><p><strong>实际构建体积：</strong>优先使用完整的 <code>bundles[].size</code>；没有 Bundle 清单时统计资源体积。Bundle 压缩体积与资源体积不能直接混用。</p><p><strong>缺失数据：</strong>体积可以省略，但总量将标为不完整；hash、依赖可省略，相应原因无法确认。原生 Unity Build Layout 等报告需要先转换为此格式。</p></div><div class="dialog-bottom"><a class="secondary-button" href="/examples/baseline.json" download>下载基线示例</a><a class="secondary-button" href="/examples/current.json" download>下载当前示例</a></div></dialog>
+  <dialog id="export-dialog" class="export-dialog"><form method="dialog" class="dialog-top"><h2>导出变化报告</h2><button class="close-button" aria-label="关闭导出窗口">×</button></form><p>报告包含体积概览、逐项变化、解释证据与数据限制。</p><div class="export-options"><button id="export-markdown" class="export-option"><strong>Markdown 报告</strong><span>适合审阅、提交说明与团队沟通</span></button><button id="export-json" class="export-option"><strong>JSON 分析结果</strong><span>适合自动化处理与 CI 集成</span></button></div><section id="report-preview" hidden><p id="report-description" role="status"></p><label for="report-text">报告文本</label><textarea id="report-text" readonly spellcheck="false"></textarea><button id="copy-report" class="secondary-button">复制报告</button></section></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
